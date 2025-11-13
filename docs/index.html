@@ -3,195 +3,148 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Log Analyzer Dashboard</title>
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
-
-  <!-- Font Awesome for icons -->
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-
+  <title>Cyber Log Analyzer</title>
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
-      background: #0e1117;
-      color: #f1f1f1;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      text-align: center;
       margin: 0;
       padding: 0;
     }
 
     header {
-      text-align: center;
-      background: #161b22;
-      color: #58a6ff;
+      background: rgba(0, 0, 0, 0.6);
       padding: 20px 0;
-      box-shadow: 0 0 10px #0d6efd33;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
 
     h1 {
       font-size: 2rem;
-      margin-bottom: 5px;
+      margin: 0;
+      color: #00ffff;
     }
 
-    .summary {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 1.5rem;
-      margin: 2rem auto;
-      max-width: 1000px;
+    .upload-box {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      margin: 40px auto;
+      width: 80%;
+      max-width: 500px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(8px);
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      margin: 15px 0;
+      border-radius: 10px;
+      border: none;
+      background: #fff;
+      color: #333;
+      width: 80%;
+      cursor: pointer;
+    }
+
+    button {
+      background: #00ffff;
+      color: #000;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00b3b3;
     }
 
     .summary-box {
-      background: #1e232b;
-      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
       padding: 20px;
-      width: 220px;
-      text-align: center;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      width: 80%;
+      max-width: 700px;
+      margin: 30px auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
 
-    .summary-box:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 15px #58a6ff44;
-    }
-
-    .summary-box i {
-      font-size: 2rem;
+    .summary-box h2 {
+      color: #00ffff;
       margin-bottom: 10px;
-      color: #58a6ff;
     }
 
-    .summary-box h3 {
-      font-size: 1.2rem;
-      margin: 8px 0 5px;
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
     }
 
-    .summary-box p {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #fff;
-    }
-
-    .chart-container {
-      max-width: 900px;
-      margin: 40px auto;
-      background: #1e232b;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px #0d6efd33;
-    }
-
-    .chart-container h2 {
-      text-align: center;
-      color: #58a6ff;
-      margin-bottom: 15px;
+    .summary div {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      border-radius: 15px;
+      font-size: 1rem;
     }
 
     footer {
-      text-align: center;
-      padding: 15px;
+      margin-top: 50px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.5);
       font-size: 0.9rem;
-      color: #aaa;
-      background: #161b22;
-      margin-top: 40px;
-    }
-
-    footer a {
-      color: #58a6ff;
-      text-decoration: none;
-    }
-
-    footer a:hover {
-      text-decoration: underline;
+      color: #00ffff;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1><i class="fas fa-chart-line"></i> Log Analyzer Dashboard</h1>
-    <p>Monitor and visualize system log activities</p>
+    <h1>Cyber Log Analyzer</h1>
+    <p>Analyze system logs for security insights</p>
   </header>
 
-  <section class="summary">
-    <div class="summary-box">
-      <i class="fas fa-list"></i>
-      <h3>Total Events</h3>
-      <p>589</p>
-    </div>
-
-    <div class="summary-box">
-      <i class="fas fa-exclamation-triangle"></i>
-      <h3>Suspicious Events</h3>
-      <p>0</p>
-    </div>
-
-    <div class="summary-box">
-      <i class="fas fa-user-times"></i>
-      <h3>Failed Logins</h3>
-      <p>0</p>
-    </div>
-
-    <div class="summary-box">
-      <i class="fas fa-network-wired"></i>
-      <h3>Unique IPs</h3>
-      <p>0</p>
-    </div>
+  <section class="upload-box">
+    <h2>Upload Log File</h2>
+    <form id="uploadForm">
+      <input type="file" id="fileInput" accept=".csv,.txt,.log" />
+      <br />
+      <button type="button" onclick="analyzeLogs()">Analyze</button>
+    </form>
   </section>
 
-  <section class="chart-container">
-    <h2><i class="fas fa-chart-bar"></i> Failed Logins by IP</h2>
-    <canvas id="logChart" width="900" height="400"></canvas>
+  <section class="summary-box" id="summarySection" style="display:none;">
+    <h2>Analysis Summary</h2>
+    <div class="summary" id="summaryContent"></div>
   </section>
 
   <footer>
-    <p>Developed by <a href="#">Your Name</a> | Log Analyzer Project © 2025</p>
+    Developed by <strong>Indrajith</strong> © 2025
   </footer>
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const ctx = document.getElementById('logChart').getContext('2d');
-    const logChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['No Data'],
-        datasets: [{
-          label: 'Failed Logins by IP',
-          data: [0],
-          backgroundColor: '#58a6ff'
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: '#333'
-            },
-            ticks: {
-              color: '#ccc'
-            }
-          },
-          x: {
-            grid: {
-              color: '#333'
-            },
-            ticks: {
-              color: '#ccc'
-            }
-          }
-        },
-        plugins: {
-          legend: {
-            labels: {
-              color: '#fff'
-            }
-          }
-        }
+    function analyzeLogs() {
+      const fileInput = document.getElementById("fileInput");
+      const summarySection = document.getElementById("summarySection");
+      const summaryContent = document.getElementById("summaryContent");
+
+      if (!fileInput.files.length) {
+        alert("Please select a log file to analyze!");
+        return;
       }
-    });
+
+      // Simple mock analysis summary (you can connect this to real analysis output later)
+      summarySection.style.display = "block";
+      summaryContent.innerHTML = `
+        <div><strong>Total Events</strong><br>589</div>
+        <div><strong>Suspicious Events</strong><br>0</div>
+        <div><strong>Failed Logins</strong><br>0</div>
+        <div><strong>Unique IPs</strong><br>0</div>
+      `;
+    }
   </script>
 </body>
 </html>
