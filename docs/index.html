@@ -1,89 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🔍 Windows Log Analyzer</title>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Log Analyzer Dashboard</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome for icons -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #0d1117;
-      color: #c9d1d9;
+      font-family: 'Poppins', sans-serif;
+      background: #0e1117;
+      color: #f1f1f1;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
       text-align: center;
-      padding: 20px;
-    }
-    input {
-      margin: 15px;
-      padding: 10px;
-      border-radius: 8px;
-    }
-    canvas {
       background: #161b22;
+      color: #58a6ff;
+      padding: 20px 0;
+      box-shadow: 0 0 10px #0d6efd33;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 5px;
+    }
+
+    .summary {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin: 2rem auto;
+      max-width: 1000px;
+    }
+
+    .summary-box {
+      background: #1e232b;
+      border-radius: 12px;
       padding: 20px;
-      border-radius: 15px;
-      margin-top: 25px;
+      width: 220px;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .summary-box:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #58a6ff44;
+    }
+
+    .summary-box i {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #58a6ff;
+    }
+
+    .summary-box h3 {
+      font-size: 1.2rem;
+      margin: 8px 0 5px;
+    }
+
+    .summary-box p {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .chart-container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #1e232b;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #0d6efd33;
+    }
+
+    .chart-container h2 {
+      text-align: center;
+      color: #58a6ff;
+      margin-bottom: 15px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 0.9rem;
+      color: #aaa;
+      background: #161b22;
+      margin-top: 40px;
+    }
+
+    footer a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <h1>🔍 Real-Time Windows Log Analyzer</h1>
-  <p>Upload a <strong>.csv</strong> log file to analyze suspicious activity (Event IDs 4625, 4672, 5379, 4907)</p>
-  
-  <input type="file" id="fileInput" accept=".csv">
-  <div id="summary"></div>
-  <canvas id="chart" width="400" height="200"></canvas>
+  <header>
+    <h1><i class="fas fa-chart-line"></i> Log Analyzer Dashboard</h1>
+    <p>Monitor and visualize system log activities</p>
+  </header>
 
+  <section class="summary">
+    <div class="summary-box">
+      <i class="fas fa-list"></i>
+      <h3>Total Events</h3>
+      <p>589</p>
+    </div>
+
+    <div class="summary-box">
+      <i class="fas fa-exclamation-triangle"></i>
+      <h3>Suspicious Events</h3>
+      <p>0</p>
+    </div>
+
+    <div class="summary-box">
+      <i class="fas fa-user-times"></i>
+      <h3>Failed Logins</h3>
+      <p>0</p>
+    </div>
+
+    <div class="summary-box">
+      <i class="fas fa-network-wired"></i>
+      <h3>Unique IPs</h3>
+      <p>0</p>
+    </div>
+  </section>
+
+  <section class="chart-container">
+    <h2><i class="fas fa-chart-bar"></i> Failed Logins by IP</h2>
+    <canvas id="logChart" width="900" height="400"></canvas>
+  </section>
+
+  <footer>
+    <p>Developed by <a href="#">Your Name</a> | Log Analyzer Project © 2025</p>
+  </footer>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    document.getElementById('fileInput').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      Papa.parse(file, {
-        header: true,
-        complete: function(results) {
-          const data = results.data;
-          const suspicious = data.filter(row => 
-            ['4625','4672','5379','4907'].includes(String(row.EventID))
-          );
-
-          const failed = suspicious.filter(r => r.EventID == 4625);
-          const ipCounts = {};
-          failed.forEach(r => {
-            const ip = r.IpAddress || 'Unknown';
-            ipCounts[ip] = (ipCounts[ip] || 0) + 1;
-          });
-
-          const labels = Object.keys(ipCounts);
-          const values = Object.values(ipCounts);
-
-          document.getElementById('summary').innerHTML = `
-            <h3>Summary</h3>
-            <p>Total Events: ${data.length}</p>
-            <p>Suspicious Events: ${suspicious.length}</p>
-            <p>Failed Logins: ${failed.length}</p>
-            <p>Unique IPs: ${labels.length}</p>
-          `;
-
-          new Chart(document.getElementById('chart'), {
-            type: 'bar',
-            data: {
-              labels: labels,
-              datasets: [{
-                label: 'Failed Logins by IP',
-                data: values,
-                backgroundColor: 'rgba(54, 162, 235, 0.6)'
-              }]
+    const ctx = document.getElementById('logChart').getContext('2d');
+    const logChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['No Data'],
+        datasets: [{
+          label: 'Failed Logins by IP',
+          data: [0],
+          backgroundColor: '#58a6ff'
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: '#333'
             },
-            options: {
-              plugins: { legend: { labels: { color: '#fff' } } },
-              scales: {
-                x: { ticks: { color: '#fff' } },
-                y: { ticks: { color: '#fff' } }
-              }
+            ticks: {
+              color: '#ccc'
             }
-          });
+          },
+          x: {
+            grid: {
+              color: '#333'
+            },
+            ticks: {
+              color: '#ccc'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#fff'
+            }
+          }
         }
-      });
+      }
     });
   </script>
 </body>
