@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔍 Windows Log Analyzer</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0d1117;
+      color: #c9d1d9;
+      text-align: center;
+      padding: 20px;
+    }
+    input {
+      margin: 15px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    canvas {
+      background: #161b22;
+      padding: 20px;
+      border-radius: 15px;
+      margin-top: 25px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Real-Time Windows Log Analyzer</h1>
+  <p>Upload a <strong>.csv</strong> log file to analyze suspicious activity (Event IDs 4625, 4672, 5379, 4907)</p>
+  
+  <input type="file" id="fileInput" accept=".csv">
+  <div id="summary"></div>
+  <canvas id="chart" width="400" height="200"></canvas>
+
+  <script>
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      Papa.parse(file, {
+        header: true,
+        complete: function(results) {
+          const data = results.data;
+          const suspicious = data.filter(row => 
+            ['4625','4672','5379','4907'].includes(String(row.EventID))
+          );
+
+          const failed = suspicious.filter(r => r.EventID == 4625);
+          const ipCounts = {};
+          failed.forEach(r => {
+            const ip = r.IpAddress || 'Unknown';
+            ipCounts[ip] = (ipCounts[ip] || 0) + 1;
+          });
+
+          const labels = Object.keys(ipCounts);
+          const values = Object.values(ipCounts);
+
+          document.getElementById('summary').innerHTML = `
+            <h3>Summary</h3>
+            <p>Total Events: ${data.length}</p>
+            <p>Suspicious Events: ${suspicious.length}</p>
+            <p>Failed Logins: ${failed.length}</p>
+            <p>Unique IPs: ${labels.length}</p>
+          `;
+
+          new Chart(document.getElementById('chart'), {
+            type: 'bar',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'Failed Logins by IP',
+                data: values,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)'
+              }]
+            },
+            options: {
+              plugins: { legend: { labels: { color: '#fff' } } },
+              scales: {
+                x: { ticks: { color: '#fff' } },
+                y: { ticks: { color: '#fff' } }
+              }
+            }
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
